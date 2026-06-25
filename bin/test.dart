@@ -5,14 +5,12 @@ import 'model/InvoiceItem.dart';
 import 'model/Offer.dart';
 import 'model/OfferAssembly.dart';
 import 'offer/BonusProduct.dart';
-import 'offer/OfferAbstract.dart';
 import 'strategey/BuyXGetYStrategy.dart';
 
 
 enum OfferType {
   buyXGetY('buyXGetY'),
-  percentage('percentage'),
-  fixed('fixed'),
+  InvoiceDiscount('invoice'),
   customer('customer'),
   productDiscount('product_discount');
 
@@ -193,9 +191,9 @@ void testScenario1_Basic() {
     ],
   );
 
-  final customer = createFakeCustomer();
-  final strategy = BuyXGetYStrategy();
-  final bonusProduct = Bonusproduct();
+  // final customer = createFakeCustomer();
+  // final strategy = BuyXGetYStrategy();
+  final bonusProduct = BonusProduct();
 
   print('📦 العرض: ${offer.name}');
   print('📋 القواعد:');
@@ -407,3 +405,5 @@ void main() {
   // testScenario4_CustomerSpecific();
   testScenario1_Basic();
 }
+
+

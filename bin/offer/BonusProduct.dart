@@ -1,27 +1,22 @@
 import '../model/AppliedOffer.dart';
-import '../model/Customer.dart';
 import '../model/InvoiceItem.dart';
 import '../model/Offer.dart';
 import '../model/OfferAssembly.dart';
 import '../test.dart';
 import 'OfferAbstract.dart';
 
-class Bonusproduct extends OfferAbstract<List<InvoiceItem>> {
-  Map<String, double> cartItems = {};
-  Map<String, double> cartRules = {};
-  List<OfferAssembly> gifts=[];
+class BonusProduct extends OfferAbstract<List<InvoiceItem>> {
+  Map<String, InvoiceItem> cartItems = {};
+  Map<String, OfferAssembly> cartRules = {};
+  List<OfferAssembly> gifts = [];
 
-//ValidateOffer must be called before Apply
+  //ValidateOffer must be called before Apply
   @override
   AppliedOffer Apply(Offer currentOffer) {
     final counter = calculateExecutionCount();
 
     if (counter <= 0 || gifts.isEmpty) {
-      return AppliedOffer(
-        offerId: 0,
-        giftItems: [],
-        name: '',
-      );
+      return AppliedOffer(offerId: 0, giftItems: [], name: '');
     }
 
     final giftItems = <InvoiceItem>[];
@@ -70,25 +65,25 @@ class Bonusproduct extends OfferAbstract<List<InvoiceItem>> {
     //check condition
     for (var item in items) {
       final key = '${item.productId}_${item.packageId}';
-      cartItems[key] = (cartItems[key] ?? 0) + (item.qty ?? 0);
+      cartItems[key] = item;
     }
     for (var rule in newRules) {
       final key = '${rule.productID}_${rule.package}';
-      cartRules[key] =
-          (cartRules[key] ?? 0) + (rule.qty ?? 0);
+      cartRules[key] = rule;
     }
     if (cartRules.isEmpty || cartItems.isEmpty) return false;
 
     return cartRules.keys.every((key) {
       if (cartItems.containsKey(key)) {
-        if (cartItems[key]! >= cartRules[key]!) return true;
+        if ((cartItems[key]!.qty ?? 0) >= (cartRules[key]!.qty ?? 0))
+          return true;
       }
       return false;
     });
   }
 
   List<OfferAssembly> extractBonusConditions(List<OfferAssembly> rules) {
-     gifts = rules.where((g) => g.state == 0).toList();
+    gifts = rules.where((g) => g.state == 0).toList();
 
     return rules.where((r) => r.state == 1).toList();
   }
@@ -96,12 +91,15 @@ class Bonusproduct extends OfferAbstract<List<InvoiceItem>> {
   int calculateExecutionCount() {
     if (cartRules.isEmpty) return 0;
     final ratios = <double>[];
+
     for (var key in cartRules.keys) {
+      final item = cartItems[key];
+      final rule = cartRules[key];
+
+      if (item == null || rule == null) continue;
       if (!(cartItems.containsKey(key))) return 0;
-      ratios.add((cartItems[key] ?? 0) / (cartRules[key] ?? 1));
+      ratios.add((item.qty ?? 0) / (rule.qty ?? 1));
     }
     return ratios.reduce((a, b) => a < b ? a : b).toInt();
   }
-
-
 }

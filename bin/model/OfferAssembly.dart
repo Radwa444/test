@@ -4,6 +4,7 @@ class OfferAssembly {
   int offerId;
   int? customerID;
   int? productID;
+  int? invoiceID;
   int? package;
   int? state;
   String name;
